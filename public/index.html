@@ -38,6 +38,9 @@
             <h1>JackAss Card Game</h1>
             <p>Be strategic! Don't get stuck with the Joker!</p>
             <br>
+            <label>Enter Your Name (or leave blank for Guest): </label>
+            <input type="text" id="player-name" placeholder="Your Name" maxlength="15">
+            <br><br>
             <label>Number of Players: </label>
             <select id="num-players">
                 <option value="3">3 Players</option>
@@ -68,9 +71,8 @@
         let game;
         let playerPosition = -1;
         let hasJoined = false;
-        let tableId = null; // Store the tableId
+        let tableId = null;
 
-        // Debug Socket.IO connection events
         socket.on('connect', () => {
             console.log('Connected to server:', socket.id);
         });
@@ -87,7 +89,6 @@
             console.error('Socket.IO error:', error);
         });
 
-        // Debug all incoming events
         socket.onAny((event, ...args) => {
             console.log(`Received event: ${event}`, args);
         });
@@ -98,15 +99,17 @@
                 return;
             }
             const numPlayers = parseInt(document.getElementById('num-players').value);
-            console.log(`Joining game with ${numPlayers} players...`);
-            socket.emit('joinGame', numPlayers, (response) => {
+            const playerName = document.getElementById('player-name').value;
+            console.log(`Joining game with ${numPlayers} players as ${playerName || 'Guest'}...`);
+            socket.emit('joinGame', { numPlayers, playerName }, (response) => {
                 console.log('Join game response:', response);
                 if (response.success) {
                     playerPosition = response.position;
                     hasJoined = true;
-                    tableId = response.tableId; // Store the tableId
+                    tableId = response.tableId;
                     document.getElementById('join-game-btn').classList.add('hidden');
                     document.getElementById('num-players').classList.add('hidden');
+                    document.getElementById('player-name').classList.add('hidden');
                     document.getElementById('players-list').classList.remove('hidden');
                     console.log(`Joined table ${response.tableId} as Player ${response.position + 1}`);
                 } else {
@@ -129,7 +132,7 @@
             console.log('Game started with', numPlayers, 'players:', players);
             console.log('JackAssGame defined before starting game:', typeof JackAssGame !== 'undefined');
             try {
-                game = new JackAssGame('game-board', socket, tableId); // Pass socket and tableId
+                game = new JackAssGame('game-board', socket, tableId);
                 game.newGame(numPlayers, players);
                 document.getElementById('start-screen').classList.add('hidden');
                 document.querySelector('.game-info').classList.remove('hidden');
@@ -143,7 +146,6 @@
             console.log('Game state updated:', gameState);
             if (game) {
                 game.setGameState(gameState);
-                game.renderGame();
             } else {
                 console.error('Game instance not defined during state update');
             }
@@ -155,6 +157,16 @@
                 game.handlePlayerAction(action);
             } else {
                 console.error('Game instance not defined during player action');
+            }
+        });
+
+        // Handle playerOut event to reload the tab
+        socket.on('playerOut', (data) => {
+            if (data.playerId === socket.id) {
+                console.log('You are out of cards! Returning to main page to join a new game.');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000); // Delay to show the UI update before reloading
             }
         });
 

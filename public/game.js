@@ -68,7 +68,7 @@ class JackAssGame {
 
         this.currentPlayer = firstPlayer;
         this.players[this.currentPlayer].isActive = true;
-        console.log(`Starting player: ${this.players[this.currentPlayer].name}`);
+        console.log(`Starting player: ${this.players[this.currentPlayer].name} (Index: ${this.currentPlayer})`);
         this.syncGameState();
         this.renderGame();
     }
@@ -183,9 +183,7 @@ class JackAssGame {
         this.gameOver = gameState.gameOver;
         this.winner = gameState.winner;
         this.loser = gameState.loser;
-        // Render the game board first to show the final card exchange
         this.renderGame();
-        // If the game is over, show the game-over screen for all players
         if (this.gameOver) {
             this.endGame();
         }
@@ -212,24 +210,37 @@ class JackAssGame {
         table.className = 'table';
         board.appendChild(table);
 
-        const selectablePlayerIndex = this.players[this.currentPlayer].id === this.socket.id ? this.findNextPlayerWithCards(this.currentPlayer) : -1;
+        const localPlayerIndex = this.players.findIndex(player => player.id === this.socket.id);
+        if (localPlayerIndex === -1) {
+            console.error("Local player not found!");
+            return;
+        }
 
-        this.players.forEach((player, index) => {
-            const containerId = index === 0 ? 'humanPlayerArea' : `aiPlayer${index-1}`;
+        const rotatedPlayers = [];
+        for (let i = 0; i < this.players.length; i++) {
+            const rotatedIndex = (localPlayerIndex + i) % this.players.length;
+            rotatedPlayers.push(this.players[rotatedIndex]);
+        }
+
+        const selectablePlayerIndex = this.players[this.currentPlayer].id === this.socket.id ? this.findNextPlayerWithCards(this.currentPlayer) : -1;
+        const pickFromPlayer = selectablePlayerIndex !== -1 ? this.players[selectablePlayerIndex] : null;
+
+        rotatedPlayers.forEach((player, visualIndex) => {
             const container = document.createElement('div');
-            container.id = containerId;
-            container.className = `player-position player-${index}`;
+            container.className = `player-position player-${visualIndex}`;
+
+            const logicalIndex = this.players.findIndex(p => p.id === player.id);
+            const isSelectable = logicalIndex === selectablePlayerIndex && visualIndex === 1;
 
             const activeClass = player.isActive ? 'active' : '';
             const loserClass = player.isLoser ? 'loser' : '';
-            const isSelectable = index === selectablePlayerIndex;
             let html = `
                 <div class="player ${activeClass} ${loserClass}">
                     <h3>${player.name}</h3>
                     <div class="pair-count">Pairs: ${player.pairs.length}</div>
                     <div class="player-cards">
                         ${player.hand.map((card, cardIndex) => `
-                            <div class="card card-${index}-${cardIndex} ${isSelectable && !this.gameOver ? 'selectable' : ''}" data-player="${index}" data-index="${cardIndex}">
+                            <div class="card card-${logicalIndex}-${cardIndex} ${isSelectable && !this.gameOver ? 'selectable' : ''}" data-player="${logicalIndex}" data-index="${cardIndex}">
                                 ${player.id === this.socket.id || player.isLoser ? `
                                     <div class="card-face">
                                         <div class="card-value ${card.getColor()}">${card.getDisplayValue()}</div>
@@ -241,22 +252,25 @@ class JackAssGame {
                             </div>
                         `).join('')}
                     </div>
-                    ${player.id === this.socket.id && !this.gameOver ? `
-                        <button class="button shuffle-button" onclick="game.shuffleHand(${index})">Shuffle Hand</button>
+                    ${player.id === this.socket.id && !this.gameOver && player.hand.length > 0 ? `
+                        <button class="button shuffle-button" onclick="game.shuffleHand(${logicalIndex})">Shuffle Hand</button>
                     ` : ''}
                 </div>
             `;
             container.innerHTML = html;
             table.appendChild(container);
-            console.log(`Rendered UI for ${player.name} in ${containerId}${isSelectable ? ' (selectable)' : ''}`);
+            console.log(`Rendered UI for ${player.name} in position player-${visualIndex}${isSelectable ? ' (selectable)' : ''}`);
         });
 
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message';
         messageDiv.id = 'messageArea';
-        messageDiv.textContent = this.players[this.currentPlayer].id === this.socket.id ?
-            "Your turn! Select a card from the next available player to your left." :
-            `${this.players[this.currentPlayer].name}'s turn...`;
+        if (this.players[this.currentPlayer].id === this.socket.id) {
+            const pickFromName = pickFromPlayer ? pickFromPlayer.name : 'no one (all other players are out of cards)';
+            messageDiv.textContent = `Your turn! Select a card from ${pickFromName}.`;
+        } else {
+            messageDiv.textContent = `${this.players[this.currentPlayer].name}'s turn...`;
+        }
         board.appendChild(messageDiv);
 
         document.getElementById('current-turn').textContent = this.players[this.currentPlayer].name;
@@ -274,11 +288,9 @@ class JackAssGame {
             this.renderGame();
             return;
         }
-        const selectablePlayer = this.players[selectablePlayerIndex];
-        const containerId = selectablePlayerIndex === 0 ? 'humanPlayerArea' : `aiPlayer${selectablePlayerIndex-1}`;
-        const cards = document.querySelectorAll(`#${containerId} .card.selectable`);
-        console.log(`Found ${cards.length} selectable cards for Player ${selectablePlayerIndex} to select from (hand length: ${selectablePlayer.hand.length})`);
-        if (selectablePlayer.hand.length > 0) {
+        const cards = document.querySelectorAll(`.player-1 .card.selectable`);
+        console.log(`Found ${cards.length} selectable cards for Player ${selectablePlayerIndex} (visual position 1, hand length: ${this.players[selectablePlayerIndex].hand.length})`);
+        if (this.players[selectablePlayerIndex].hand.length > 0 && cards.length > 0) {
             cards.forEach(cardElement => {
                 cardElement.removeEventListener('click', cardElement.clickHandler);
                 cardElement.clickHandler = () => {
@@ -303,7 +315,7 @@ class JackAssGame {
                 cardElement.addEventListener('click', cardElement.clickHandler);
             });
         } else {
-            console.log(`No selectable cards for Player ${selectablePlayerIndex} (hand length: ${selectablePlayer.hand.length})`);
+            console.log(`No selectable cards found for Player ${selectablePlayerIndex} (hand length: ${this.players[selectablePlayerIndex].hand.length}, cards found: ${cards.length})`);
         }
     }
 
@@ -332,14 +344,28 @@ class JackAssGame {
             </div>
         `;
         document.getElementById('game-board').appendChild(pickedCardDiv);
+
         setTimeout(() => {
             pickedCardDiv.remove();
             currentPlayer.hand.push(card);
             this.checkForPairs(currentPlayer);
-            // Sync the state after the card exchange, even if the game ends
+
+            // Check if either player is now out of cards
+            if (targetPlayer.hand.length === 0) {
+                console.log(`${targetPlayer.name} is out of cards! Notifying client to return to main page.`);
+                this.socket.emit('playerOut', { playerId: targetPlayer.id });
+            }
+            if (currentPlayer.hand.length === 0) {
+                console.log(`${currentPlayer.name} is out of cards! Notifying client to return to main page.`);
+                this.socket.emit('playerOut', { playerId: currentPlayer.id });
+            }
+
+            // Sync the state to ensure all clients see the card exchange
             this.syncGameState();
+            this.renderGame();
+
+            // Check if the game is over after the exchange
             if (this.checkGameOver()) {
-                // Sync the final state before ending the game
                 this.syncGameState();
                 return;
             }
@@ -355,13 +381,25 @@ class JackAssGame {
             nextPlayerIndex = (nextPlayerIndex + 1) % this.players.length;
             attempts++;
         } while (this.players[nextPlayerIndex].hand.length === 0 && attempts < this.players.length);
-        if (this.players[nextPlayerIndex].hand.length === 0) {
-            console.log("No players with cards to continue; game should end.");
+
+        // Check if only one player has cards left
+        let playersWithCards = 0;
+        let lastPlayerWithCards = -1;
+        for (let i = 0; i < this.players.length; i++) {
+            if (this.players[i].hand.length > 0) {
+                playersWithCards++;
+                lastPlayerWithCards = i;
+            }
+        }
+        if (playersWithCards <= 1) {
+            console.log("Only one player with cards left; game should end.");
+            this.checkGameOver();
             return;
         }
+
         this.currentPlayer = nextPlayerIndex;
         this.players[this.currentPlayer].isActive = true;
-        console.log(`Next player: ${this.players[this.currentPlayer].name}`);
+        console.log(`Next player: ${this.players[this.currentPlayer].name} (Index: ${this.currentPlayer})`);
         this.syncGameState();
     }
 
@@ -409,17 +447,15 @@ class JackAssGame {
             console.error("Game ended but no loser was set!");
             return;
         }
-        // Determine if the current player (based on socket.id) is the loser
         const isLoser = this.players[this.loser].id === this.socket.id;
         if (isLoser) {
             resultText.textContent = "You Lost!";
             winnerText.textContent = "You got stuck with the JackAss!";
         } else {
             resultText.textContent = "You Won!";
-            winnerText.textContent = `Player ${this.loser + 1} got stuck with the JackAss!`;
+            winnerText.textContent = `${this.players[this.loser].name} got stuck with the JackAss!`;
         }
         gameOverScreen.classList.remove('hidden');
-        // Pass whether the current player won (not the loser) to saveStats
         saveStats(!isLoser);
     }
 }

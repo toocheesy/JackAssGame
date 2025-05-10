@@ -13,8 +13,9 @@ app.use(express.static('public'));
 io.on('connection', (socket) => {
     console.log(`Player connected: ${socket.id}`);
 
-    socket.on('joinGame', (numPlayers, callback) => {
-        // Find a table with the matching number of players and in 'waiting' status
+    socket.on('joinGame', ({ numPlayers, playerName }, callback) => {
+        const name = playerName && playerName.trim() ? playerName.trim() : `Guest${Math.floor(Math.random() * 1000)}`;
+        
         let table = tables.find(t => t.status === 'waiting' && t.numPlayers === numPlayers && t.players.length < numPlayers);
         if (!table) {
             table = {
@@ -28,14 +29,13 @@ io.on('connection', (socket) => {
         }
 
         const position = table.players.length;
-        table.players.push({ id: socket.id, name: `Player ${position + 1}`, position, isHuman: true });
+        table.players.push({ id: socket.id, name, position, isHuman: true });
         socket.join(table.id);
         io.to(table.id).emit('playerJoined', table.players);
         callback({ success: true, position, tableId: table.id });
 
-        console.log(`${socket.id} joined table ${table.id} as Player ${position + 1} (Lobby: ${numPlayers} players)`);
+        console.log(`${socket.id} joined table ${table.id} as ${name} (Lobby: ${numPlayers} players)`);
 
-        // Start the game if the table has the required number of players
         if (table.players.length === table.numPlayers) {
             table.status = 'playing';
             io.to(table.id).emit('gameStarted', table.numPlayers, table.players);
@@ -54,21 +54,27 @@ io.on('connection', (socket) => {
         io.to(tableId).emit('playerAction', action);
     });
 
+    socket.on('playerOut', (data) => {
+        // Relay the playerOut event to the specific client
+        io.to(data.playerId).emit('playerOut', { playerId: data.playerId });
+    });
+
     socket.on('disconnect', () => {
         for (let i = 0; i < tables.length; i++) {
             const table = tables[i];
             const playerIndex = table.players.findIndex(p => p.id === socket.id);
             if (playerIndex !== -1) {
+                const playerName = table.players[playerIndex].name;
                 table.players.splice(playerIndex, 1);
                 io.to(table.id).emit('playerLeft', socket.id);
                 if (table.players.length === 0) {
                     tables.splice(i, 1);
                     console.log(`Table ${table.id} deleted`);
                 }
+                console.log(`${playerName} (${socket.id}) disconnected`);
                 break;
             }
         }
-        console.log(`Player disconnected: ${socket.id}`);
     });
 });
 
