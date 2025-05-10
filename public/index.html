@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JackAss Card Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="game.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span class="logo-text"><span class="j">J</span><span class="a">A</span></span>
+        </div>
+        <h1 class="title">JackAss</h1>
+        <div class="nav-buttons">
+            <button onclick="showHelp()">How to Play</button>
+            <button onclick="showStats()">Stats</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="game-info hidden">
+            <div>Round: <span id="round">1</span></div>
+            <div>Turn: <span id="current-turn">Player 1</span></div>
+        </div>
+        <div class="game-board" id="game-board"></div>
+    </div>
+
+    <div class="footer">
+        <p>JackAss Card Game © 2025</p>
+    </div>
+
+    <!-- Start Screen -->
+    <div class="start-screen" id="start-screen">
+        <div class="modal-content">
+            <h1>JackAss Card Game</h1>
+            <p>Be strategic! Don't get stuck with the Joker!</p>
+            <br>
+            <label>Number of Players: </label>
+            <select id="num-players">
+                <option value="3">3 Players</option>
+                <option value="4">4 Players</option>
+            </select>
+            <br><br>
+            <button class="btn btn-play" id="join-game-btn" onclick="joinGame()">Join Game</button>
+            <p id="players-list" class="hidden">Waiting for players...</p>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div class="game-over-screen hidden" id="game-over-screen">
+        <div class="modal-content">
+            <h1 id="game-result">Game Over!</h1>
+            <p id="winner-text"></p>
+            <br>
+            <button class="btn btn-play" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('Starting client-side script...');
+        console.log('Socket.IO loaded:', typeof io !== 'undefined');
+        console.log('JackAssGame defined:', typeof JackAssGame !== 'undefined');
+
+        const socket = io();
+        let game;
+        let playerPosition = -1;
+        let hasJoined = false;
+        let tableId = null; // Store the tableId
+
+        // Debug Socket.IO connection events
+        socket.on('connect', () => {
+            console.log('Connected to server:', socket.id);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Socket.IO connection error:', error);
+        });
+
+        socket.on('disconnect', (reason) => {
+            console.log('Disconnected from server:', reason);
+        });
+
+        socket.on('error', (error) => {
+            console.error('Socket.IO error:', error);
+        });
+
+        // Debug all incoming events
+        socket.onAny((event, ...args) => {
+            console.log(`Received event: ${event}`, args);
+        });
+
+        function joinGame() {
+            if (hasJoined) {
+                console.log('Already joined, ignoring joinGame call');
+                return;
+            }
+            const numPlayers = parseInt(document.getElementById('num-players').value);
+            console.log(`Joining game with ${numPlayers} players...`);
+            socket.emit('joinGame', numPlayers, (response) => {
+                console.log('Join game response:', response);
+                if (response.success) {
+                    playerPosition = response.position;
+                    hasJoined = true;
+                    tableId = response.tableId; // Store the tableId
+                    document.getElementById('join-game-btn').classList.add('hidden');
+                    document.getElementById('num-players').classList.add('hidden');
+                    document.getElementById('players-list').classList.remove('hidden');
+                    console.log(`Joined table ${response.tableId} as Player ${response.position + 1}`);
+                } else {
+                    alert('Failed to join game. Try again.');
+                }
+            });
+        }
+
+        socket.on('playerJoined', (players) => {
+            const playersList = document.getElementById('players-list');
+            playersList.innerHTML = 'Players: ' + players.map(p => p.name).join(', ');
+            console.log('Players updated:', players);
+        });
+
+        socket.on('playerLeft', (playerId) => {
+            console.log(`Player ${playerId} left the table`);
+        });
+
+        socket.on('gameStarted', (numPlayers, players) => {
+            console.log('Game started with', numPlayers, 'players:', players);
+            console.log('JackAssGame defined before starting game:', typeof JackAssGame !== 'undefined');
+            try {
+                game = new JackAssGame('game-board', socket, tableId); // Pass socket and tableId
+                game.newGame(numPlayers, players);
+                document.getElementById('start-screen').classList.add('hidden');
+                document.querySelector('.game-info').classList.remove('hidden');
+                console.log('Game started successfully');
+            } catch (error) {
+                console.error('Error starting game:', error);
+            }
+        });
+
+        socket.on('gameStateUpdated', (gameState) => {
+            console.log('Game state updated:', gameState);
+            if (game) {
+                game.setGameState(gameState);
+                game.renderGame();
+            } else {
+                console.error('Game instance not defined during state update');
+            }
+        });
+
+        socket.on('playerAction', (action) => {
+            console.log('Received player action:', action);
+            if (game) {
+                game.handlePlayerAction(action);
+            } else {
+                console.error('Game instance not defined during player action');
+            }
+        });
+
+        function pickCard(playerIndex, cardIndex) {
+            if (!tableId) {
+                console.error('Table ID is not defined, cannot send player action');
+                return;
+            }
+            socket.emit('playerAction', tableId, { type: 'pickCard', playerIndex, cardIndex });
+        }
+
+        function showHelp() {
+            alert(`JackAss Rules:
+1. All players are dealt cards with one Joker (JackAss) in the deck.
+2. Match pairs and put them down.
+3. Take turns picking cards from the player to your left.
+4. If you make a pair, put it down.
+5. The last player with the JackAss loses!
+Strategy: Try to get rid of your cards and avoid getting stuck with the JackAss!`);
+        }
+
+        function showStats() {
+            const stats = JSON.parse(localStorage.getItem('jackassStats') || '{"wins":0,"losses":0,"games":0}');
+            alert(`Your Stats:
+Games Played: ${stats.games}
+Wins: ${stats.wins}
+Losses: ${stats.losses}
+Win Rate: ${stats.games ? Math.round(stats.wins/stats.games*100) : 0}%`);
+        }
+    </script>
+</body>
+</html>
