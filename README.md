@@ -1,111 +1,103 @@
-JackAss Multiplayer
+# JackAss Multiplayer
 
-A web-based, multiplayer card game for 3 or 4 players, built with Node.js, Express, and Socket.IO. JackAss brings the classic card game (also known as "Old Maid") into a gritty, neon-lit digital experience. Avoid getting stuck with the Joker (the "JackAss" card) as you take turns picking cards and forming pairs in real-time with friends!
+A gritty, neon-lit multiplayer card game (inspired by "Old Maid") built with Node.js, Express, and Socket.IO. Avoid getting stuck with the Joker (aka the "JackAss" card) as you take turns forming pairs and picking cards in real-time. Play with friends or bots in your browser.
 
-Features
+## 🎮 Features
 
-Real-Time Multiplayer: Play with 3 or 4 players across different browser tabs, with seamless game state syncing using Socket.IO.
-Dynamic Lobby: Select the number of players (3 or 4) and join a game—starts automatically when the table fills.
-Intuitive Gameplay:
-Players take turns picking cards from the player to their left.
-Form pairs to discard cards, aiming to avoid the Joker.
-The last player with the Joker loses, and others win!
+- **Real-Time Multiplayer**: Play with 3 or 4 players using Socket.IO for seamless syncing.
+- **Auto Lobby Fill**: Bots auto-fill empty seats after 10 seconds.
+- **Smart Gameplay**:
+  - Take turns picking a card from the player to your left.
+  - Automatically form pairs and discard them.
+  - Last one stuck with the Joker loses.
+- **Animated, Responsive UI**:
+  - Gritty dark theme with red/yellow/green neon accents.
+  - Sound effects for turns, matches, wins/losses.
+  - Pre-selection animations and clear turn indicators.
+- **Stats Tracking**: Win/loss stats saved locally.
+- **Feedback System**: Built-in feedback button (connects to Google Form).
+- **Mobile-friendly**: Layout adjusts for smaller screens.
 
-Gritty Design: Charcoal background with neon accents (reds, yellows, dark greens), featuring animated cards and a chaotic vibe.
-Stats Tracking: Win/loss stats are saved locally, with a stats screen showing your game history and win rate.
-Responsive UI: Double-click to pick cards, with visual feedback like pre-selection animations and turn indicators.
+## 🚀 Live Demo
 
-Prerequisites
-To run JackAss Multiplayer locally, you’ll need:
+- [Render](https://jackassgame.onrender.com)
+- [Vercel](https://jack-ass-game.vercel.app)
 
-Node.js (version 14 or higher recommended)
-npm (comes with Node.js)
-Git (to clone the repository)
+## 🛠️ Tech Stack
 
-Installation
+- **Backend**: Node.js, Express, Socket.IO
+- **Frontend**: HTML, CSS, JavaScript
 
-Clone the Repository:
-git clone [https://github.com/toocheesy/JackAssGame.git](https://github.com/toocheesy/JackAssGame.git)
+## 📁 Project Structure
+
+```
+JackAssGame/
+├── server.js               # Node/Express/Socket.IO server
+├── public/
+│   ├── index.html         # Game UI
+│   ├── game.js            # Client-side game logic
+│   ├── styles.css         # Game styling
+│   ├── win-jingle.mp3     # Win sound
+│   ├── losing-sound-effect.mp3  # Loss sound
+│   ├── match-made.mp3     # Match sound
+│   ├── player-turn.mp3    # Turn notification
+│   ├── privacy.html       # Privacy policy
+│   └── terms.html         # Terms of service
+└── README.md              # You're reading it!
+```
+
+## 📦 Installation
+
+### Prerequisites
+- Node.js (v14+)
+- npm (bundled with Node)
+- Git
+
+### Run Locally
+```bash
+git clone https://github.com/toocheesy/JackAssGame.git
 cd JackAssGame
-
-Install Dependencies:
 npm install
-
-This installs the required Node.js packages (express, socket.io).
-
-Run the Server:
 node server.js
+```
 
-The server will start on [http://localhost:3000](http://localhost:3000) (or another port if specified).
+Open `http://localhost:3000` in multiple tabs (3 or 4) to simulate a full game.
 
-Play the Game:
+## 🕹️ How to Play
 
-Open multiple browser tabs (3 or 4, depending on the number of players).
-Navigate to [http://localhost:3000](http://localhost:3000) in each tab.
-Select the number of players (3 or 4) and click "Join Game" in each tab.
-The game starts when the table fills!
+1. On the start screen, choose 3 or 4 players and enter your name (optional).
+2. Click "Join Game" in each tab. Bots will fill in after 10 seconds if needed.
+3. Cards are dealt, and pairs are auto-discarded.
+4. On your turn:
+   - Select a card from the player to your left.
+   - Form a pair if possible — it’s auto-discarded.
+   - Goal: Avoid holding the Joker at the end!
+5. The game ends when only one player has the Joker.
 
-How to Play
+## 🔊 Sound Effects
 
-Join a Game:
+Sound effects used in this game are royalty-free or Creative Commons licensed:
 
-On the start screen, choose 3 or 4 players via the dropdown.
-Click "Join Game" to join the lobby. The game starts when the table fills with the selected number of players.
+- **Card Pick Sound**: [Videvo](https://www.videvo.net/sound-effect/card-pick-up-wes101701/236368/)
+- **Match Made Sound**: [Mixkit](https://mixkit.co/free-sound-effects/bonus/)
+- **Game Win Jingle**: [Freesoundslibrary](https://www.freesoundslibrary.com/win-sound/)
+- **Game Loss Sound**: [Freesoundslibrary](https://www.freesoundslibrary.com/losing-sound-effect/)
+- **Turn Notification**: [Videvo](https://www.videvo.net/sound-effect/game-notification-132406/237129/)
 
-Gameplay:
+## 📊 Stats
 
-Cards are dealt, and matching pairs are automatically discarded.
-On your turn, pick a card from the next available player to your left by double-clicking a card (click once to pre-select, again to confirm).
-If you form a pair, it’s discarded. The goal is to avoid ending up with the Joker.
-The game ends when one player is left with the Joker—they lose, and the others win.
+- View win/loss record from the Stats button.
+- Data is stored locally in your browser (via `localStorage`).
 
-Game Over:
+## 📬 Feedback
 
-A game-over screen shows whether you won or lost, with a message about who got stuck with the Joker.
-Check your stats (via the "Stats" button) to see your win/loss record.
-Click "Play Again" to restart.
+Have thoughts or ideas? Click the "Feedback" button on the site header to submit suggestions via Google Form.
 
-Project Structure
+## 📜 License
+MIT — see LICENSE file.
 
-server.js: Node.js server using Express and Socket.IO to manage game tables and sync game state.
-public/:
-index.html: The game UI, including the start screen, game board, and game-over screen.
-game.js: Client-side game logic, including the JackAssGame and Card classes.
-styles.css: CSS for the gritty, neon-themed design.
+## 🙏 Acknowledgments
 
-Screenshots
-
-Start Screen: Select the number of players and join the game.
-Game Board: See your hand, other players’ card backs, and take turns picking cards.
-Game Over: Win or lose with a dramatic message!
-
-Tech Stack
-
-Backend: Node.js, Express, Socket.IO
-Frontend: HTML, JavaScript, CSS
-Real-Time Communication: Socket.IO for multiplayer syncing
-
-Sound Effects
-
-Sound effects used in this game are licensed under Creative Commons or similar royalty-free terms. Sources include:
-
-* Card Pick Sound: “Card Pick Up” from [Videvo](https://www.videvo.net/sound-effect/card-pick-up-wes101701/236368/)
-* Match Made Sound: “Bonus Win” from [Mixkit](https://mixkit.co/free-sound-effects/bonus/)
-* Game Win Jingle: “Win Sound” from [Freesoundslibrary](https://www.freesoundslibrary.com/win-sound/)
-* Game Loss Sound: “Losing Sound Effect” from [Freesoundslibrary](https://www.freesoundslibrary.com/losing-sound-effect/)
-* Turn Start Ping: “Notification Sound” from [Videvo](https://www.videvo.net/sound-effect/game-notification-132406/237129/)
-
-Contributing
-Want to add features or fix bugs? Feel free to fork the repository, make your changes, and submit a pull request. Some ideas for contributions:
-
-Add a chat system for in-game trash talk.
-Include sound effects (e.g., card shuffles, win/lose jingles).
-Support custom player names.
-
-License
-This project is licensed under the MIT License—see the LICENSE file for details.
-
-Acknowledgments
-
-Built with the help of Grok (xAI) for real-time debugging and development support.
-Inspired by the classic card game "Old Maid" with a chaotic, modern twist.
+- Built with Grok and ChatGPT for development support.
+- Inspired by the classic "Old Maid" card game.
+- Designed for quick fun, adult humor, and digital chaos.
