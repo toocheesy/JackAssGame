@@ -12,7 +12,6 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://jackassgame.onrender.com">
 
-    <!-- Google Analytics (REPLACE ID BELOW WITH YOUR OWN) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -30,7 +29,7 @@
         </div>
         <h1 class="title">JackAss</h1>
         <div class="nav-buttons">
-            <button onclick="alert('Select 3 or 4 players, join the game, and avoid the Joker!')">How to Play</button>
+            <button onclick="alert('Join a table with 3 bots. Avoid the Joker!')">How to Play</button>
             <button onclick="showStats()">Stats</button>
             <button onclick="window.open('https://forms.gle/example-feedback-form')">Feedback</button>
         </div>
@@ -51,20 +50,13 @@
     <div id="start-screen" class="start-screen">
         <div class="modal-content">
             <h1>JackAss Card Game</h1>
-            <p>Be strategic! Don't get stuck with the Joker!</p>
+            <p>You vs. 3 bots. Don't get stuck with the Joker!</p>
             <div>
                 <label for="player-name">Enter Your Name (or leave blank for Guest):</label>
                 <input type="text" id="player-name" maxlength="20">
             </div>
-            <div>
-                <label for="num-players">Number of Players:</label>
-                <select id="num-players">
-                    <option value="3">3 Players</option>
-                    <option value="4">4 Players</option>
-                </select>
-            </div>
             <button class="btn btn-play" onclick="joinGame()">Join Game</button>
-            <p id="waiting-message">Waiting for players...</p>
+            <p id="waiting-message">Launching table with bots...</p>
         </div>
     </div>
 
@@ -76,22 +68,19 @@
         </div>
     </div>
 
-    <!-- Sound effects -->
     <audio id="win-jingle" src="/win-jingle.mp3" preload="auto"></audio>
     <audio id="losing-sound-effect" src="/losing-sound-effect.mp3" preload="auto"></audio>
     <audio id="match-made" src="/match-made.mp3" preload="auto"></audio>
     <audio id="player-turn" src="/player-turn.mp3" preload="auto"></audio>
 
-    <!-- Socket.IO and game logic (ensure order) -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let game;
 
         function joinGame() {
-            const numPlayers = parseInt(document.getElementById('num-players').value);
             const playerName = document.getElementById('player-name').value;
-            socket.emit('joinGame', { numPlayers, playerName }, (response) => {
+            socket.emit('joinGame', { playerName }, (response) => {
                 if (response.success) {
                     game = new JackAssGame('game-board', socket, response.tableId);
                     document.getElementById('start-screen').classList.add('hidden');
