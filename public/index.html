@@ -22,8 +22,6 @@
     </script>
 
     <link rel="stylesheet" href="/styles.css">
-    <script src="/socket.io/socket.io.js" defer></script>
-    <script src="/game.js" defer></script>
 </head>
 <body>
     <header class="header">
@@ -84,6 +82,8 @@
     <audio id="match-made" src="/match-made.mp3" preload="auto"></audio>
     <audio id="player-turn" src="/player-turn.mp3" preload="auto"></audio>
 
+    <!-- Socket.IO and game logic (ensure order) -->
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let game;
@@ -106,5 +106,6 @@
             alert(`Games Played: ${stats.games}\nWins: ${stats.wins}\nLosses: ${stats.losses}\nWin Rate: ${stats.games ? ((stats.wins / stats.games) * 100).toFixed(2) : 0}%`);
         }
     </script>
+    <script src="/game.js"></script>
 </body>
 </html>
