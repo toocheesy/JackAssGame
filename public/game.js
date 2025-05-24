@@ -14,10 +14,6 @@ class Card {
     getColor() {
         return (this.suit === '♥' || this.suit === '♦' || this.isJoker) ? 'red' : 'black';
     }
-    matches(otherCard) {
-        if (this.isJoker || otherCard.isJoker) return false;
-        return this.value === otherCard.value;
-    }
 }
 
 class JackAssGame {
@@ -27,122 +23,84 @@ class JackAssGame {
         this.tableId = tableId;
         this.players = [];
         this.currentPlayer = 0;
-        this.deck = [];
         this.gameOver = false;
         this.winner = null;
         this.loser = -1;
         this.selectedCard = null;
+        this.timerInterval = null;
     }
 
-    newGame(numPlayers, players) {
-        console.log(`Initializing new game with ${numPlayers} players...`);
-        this.players = [];
-        this.gameOver = false;
-        this.winner = null;
-        this.loser = -1;
-
-        const hands = this.dealCards(numPlayers);
-        for (let i = 0; i < numPlayers; i++) {
-            const playerInfo = players[i];
-            const player = {
-                id: playerInfo.id,
-                name: playerInfo.name,
-                hand: hands[i],
-                pairs: [],
-                isHuman: playerInfo.isHuman,
-                isActive: false,
-                isLoser: false
-            };
-            this.checkForPairs(player);
-            this.players.push(player);
-        }
-
-        let minCards = 999;
-        let firstPlayer = 0;
-        for (let i = 0; i < numPlayers; i++) {
-            if (this.players[i].hand.length < minCards) {
-                minCards = this.players[i].hand.length;
-                firstPlayer = i;
-            }
-        }
-
-        this.currentPlayer = firstPlayer;
-        this.players[this.currentPlayer].isActive = true;
-        console.log(`Starting player: ${this.players[this.currentPlayer].name} (Index: ${this.currentPlayer})`);
-        this.syncGameState();
-        this.renderGame();
-    }
-
-    createDeck() {
-        const suits = ['♠', '♥', '♦', '♣'];
-        const deck = [];
-        for (let suit of suits) {
-            for (let value = 1; value <= 13; value++) {
-                if (value !== 11) {
-                    deck.push(new Card(value, suit));
-                }
-            }
-        }
-        deck.push(new Card('JOKER', null));
-        return this.shuffleDeck(deck);
-    }
-
-    shuffleDeck(deck) {
-        for (let i = deck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [deck[i], deck[j]] = [deck[j], deck[i]];
-        }
-        return deck;
-    }
-
-    dealCards(numPlayers) {
-        const deck = this.createDeck();
-        const hands = Array(numPlayers).fill().map(() => []);
-        let currentPlayer = 0;
-        while (deck.length > 0) {
-            hands[currentPlayer].push(deck.pop());
-            currentPlayer = (currentPlayer + 1) % numPlayers;
-        }
-        return hands;
-    }
-
-    checkForPairs(player) {
-        const rankMap = {};
-        let joker = null;
-        player.hand.forEach(card => {
-            if (card.isJoker) {
-                joker = card;
-            } else {
-                const rank = card.value;
-                if (!rankMap[rank]) rankMap[rank] = [];
-                rankMap[rank].push(card);
+    init() {
+        this.socket.on('playerJoined', (players) => {
+            console.log('Player joined:', players);
+            const startScreen = document.getElementById('start-screen');
+            const waitingMessage = document.getElementById('waiting-message');
+            if (waitingMessage) {
+                waitingMessage.textContent = `Table Filling... (${players.length}/${players[0].numPlayers || 4} players)`;
+                let timeLeft = 10;
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    timeLeft--;
+                    waitingMessage.textContent = `Table Filling... (${players.length}/${players[0].numPlayers || 4} players, ${timeLeft}s)`;
+                    if (timeLeft <= 0 || players.length === players[0].numPlayers) {
+                        clearInterval(this.timerInterval);
+                    }
+                }, 1000);
             }
         });
 
-        const newHand = [];
-        for (const rank in rankMap) {
-            const cards = rankMap[rank];
-            while (cards.length >= 2) {
-                const card1 = cards.pop();
-                const card2 = cards.pop();
-                player.pairs.push([card1, card2]);
+        this.socket.on('gameStarted', (numPlayers, players, gameState) => {
+            console.log(`Game started with ${numPlayers} players`);
+            clearInterval(this.timerInterval);
+            this.setGameState(gameState);
+            this.playSound('player-turn');
+        });
+
+        this.socket.on('gameStateUpdated', (gameState) => {
+            const prevPlayer = this.currentPlayer;
+            this.setGameState(gameState);
+            if (prevPlayer !== gameState.currentPlayer && this.players[gameState.currentPlayer].id === this.socket.id) {
+                this.playSound('player-turn');
             }
-            newHand.push(...cards);
-        }
+        });
 
-        player.hand = newHand;
-        if (joker) player.hand.push(joker);
+        this.socket.on('pairMade', (data) => {
+            if (data.playerId === this.socket.id) {
+                this.playSound('match-made');
+            }
+        });
 
-        console.log(`${player.name}'s hand after pairing:`, player.hand.map(card => card.isJoker ? 'JOKER' : `${card.getDisplayValue()} of ${card.suit}`));
+        this.socket.on('playerOut', (data) => {
+            if (data.playerId === this.socket.id) {
+                window.location.reload();
+            }
+        });
+
+        this.socket.on('playerLeft', (playerId) => {
+            console.log(`Player ${playerId} left`);
+            this.renderGame();
+        });
+
+        this.socket.on('error', (data) => {
+            console.log(`Error: ${data.message}`);
+            const messageDiv = document.getElementById('messageArea');
+            if (messageDiv) {
+                messageDiv.textContent = data.message;
+                setTimeout(() => {
+                    messageDiv.textContent = this.players[this.currentPlayer].id === this.socket.id
+                        ? `Your turn! Select a card from ${this.players[this.findNextPlayerWithCards(this.currentPlayer)]?.name || 'no one'}.`
+                        : `${this.players[this.currentPlayer].name}'s turn...`;
+                }, 2000);
+            }
+        });
     }
 
-    shuffleHand(playerIndex) {
-        const player = this.players[playerIndex];
-        if (!player.isHuman) return;
-        this.shuffleDeck(player.hand);
-        console.log(`${player.name} shuffled their hand:`, player.hand.map(card => card.isJoker ? 'JOKER' : `${card.getDisplayValue()} of ${card.suit}`));
-        this.syncGameState();
-        this.renderGame();
+    playSound(soundId) {
+        const audio = document.getElementById(soundId);
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play().catch(err => console.log(`Sound play error: ${err}`));
+        }
     }
 
     findNextPlayerWithCards(startIndex) {
@@ -157,21 +115,6 @@ class JackAssGame {
             attempts++;
         }
         return -1;
-    }
-
-    syncGameState() {
-        if (!this.tableId) {
-            console.error('Table ID is not defined, cannot sync game state');
-            return;
-        }
-        console.log(`Syncing game state for table ${this.tableId}...`);
-        this.socket.emit('updateGameState', this.tableId, {
-            players: this.players,
-            currentPlayer: this.currentPlayer,
-            gameOver: this.gameOver,
-            winner: this.winner,
-            loser: this.loser
-        });
     }
 
     setGameState(gameState) {
@@ -190,11 +133,11 @@ class JackAssGame {
     }
 
     handlePlayerAction(action) {
-        if (action.type === 'pickCard') {
-            this.humanSelectCard(action.playerIndex, action.cardIndex);
-        } else if (action.type === 'shuffleHand') {
-            this.shuffleHand(action.playerIndex);
-        }
+        this.socket.emit('playerAction', this.tableId, action);
+    }
+
+    shuffleHand(playerIndex) {
+        this.handlePlayerAction({ type: 'shuffleHand', playerIndex });
     }
 
     renderGame() {
@@ -284,12 +227,11 @@ class JackAssGame {
         const selectablePlayerIndex = this.findNextPlayerWithCards(this.currentPlayer);
         if (selectablePlayerIndex === -1) {
             console.log("No players with cards to select from; ending turn.");
-            this.nextPlayer();
-            this.renderGame();
+            this.handlePlayerAction({ type: 'nextPlayer' });
             return;
         }
         const cards = document.querySelectorAll(`.player-1 .card.selectable`);
-        console.log(`Found ${cards.length} selectable cards for Player ${selectablePlayerIndex} (visual position 1, hand length: ${this.players[selectablePlayerIndex].hand.length})`);
+        console.log(`Found ${cards.length} selectable cards for Player ${selectablePlayerIndex}`);
         if (this.players[selectablePlayerIndex].hand.length > 0 && cards.length > 0) {
             cards.forEach(cardElement => {
                 cardElement.removeEventListener('click', cardElement.clickHandler);
@@ -300,7 +242,7 @@ class JackAssGame {
                     
                     if (this.selectedCard && this.selectedCard.key === cardKey) {
                         console.log(`Confirmed selection: Player ${playerIndex}, Index ${cardIndex}`);
-                        pickCard(playerIndex, cardIndex);
+                        this.handlePlayerAction({ type: 'pickCard', playerIndex, cardIndex });
                         this.selectedCard.element.classList.remove('pre-selected');
                         this.selectedCard = null;
                     } else {
@@ -314,129 +256,7 @@ class JackAssGame {
                 };
                 cardElement.addEventListener('click', cardElement.clickHandler);
             });
-        } else {
-            console.log(`No selectable cards found for Player ${selectablePlayerIndex} (hand length: ${this.players[selectablePlayerIndex].hand.length}, cards found: ${cards.length})`);
         }
-    }
-
-    humanSelectCard(playerIndex, cardIndex) {
-        if (this.gameOver || this.players[this.currentPlayer].id !== this.socket.id) {
-            console.log("Cannot pick card: game over or not this player's turn.");
-            return;
-        }
-        const selectablePlayerIndex = this.findNextPlayerWithCards(this.currentPlayer);
-        if (selectablePlayerIndex === -1 || playerIndex !== selectablePlayerIndex) {
-            console.log(`Cannot pick from Player ${playerIndex}; must pick from Player ${selectablePlayerIndex} (next available to your left).`);
-            return;
-        }
-        const targetPlayer = this.players[playerIndex];
-        const currentPlayer = this.players.find(p => p.id === this.socket.id);
-        const card = targetPlayer.hand.splice(cardIndex, 1)[0];
-
-        const pickedCardDiv = document.createElement('div');
-        pickedCardDiv.className = 'picked-card';
-        pickedCardDiv.innerHTML = `
-            <div class="card picked">
-                <div class="card-face">
-                    <div class="card-value ${card.getColor()}">${card.getDisplayValue()}</div>
-                    ${!card.isJoker ? `<div class="card-suit ${card.getColor()}">${card.suit}</div>` : ''}
-                </div>
-            </div>
-        `;
-        document.getElementById('game-board').appendChild(pickedCardDiv);
-
-        setTimeout(() => {
-            pickedCardDiv.remove();
-            currentPlayer.hand.push(card);
-            this.checkForPairs(currentPlayer);
-
-            // Check if either player is now out of cards
-            if (targetPlayer.hand.length === 0) {
-                console.log(`${targetPlayer.name} is out of cards! Notifying client to return to main page.`);
-                this.socket.emit('playerOut', { playerId: targetPlayer.id });
-            }
-            if (currentPlayer.hand.length === 0) {
-                console.log(`${currentPlayer.name} is out of cards! Notifying client to return to main page.`);
-                this.socket.emit('playerOut', { playerId: currentPlayer.id });
-            }
-
-            // Sync the state to ensure all clients see the card exchange
-            this.syncGameState();
-            this.renderGame();
-
-            // Check if the game is over after the exchange
-            if (this.checkGameOver()) {
-                this.syncGameState();
-                return;
-            }
-            this.nextPlayer();
-        }, 1000);
-    }
-
-    nextPlayer() {
-        this.players[this.currentPlayer].isActive = false;
-        let nextPlayerIndex = this.currentPlayer;
-        let attempts = 0;
-        do {
-            nextPlayerIndex = (nextPlayerIndex + 1) % this.players.length;
-            attempts++;
-        } while (this.players[nextPlayerIndex].hand.length === 0 && attempts < this.players.length);
-
-        // Check if only one player has cards left
-        let playersWithCards = 0;
-        let lastPlayerWithCards = -1;
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].hand.length > 0) {
-                playersWithCards++;
-                lastPlayerWithCards = i;
-            }
-        }
-        if (playersWithCards <= 1) {
-            console.log("Only one player with cards left; game should end.");
-            this.checkGameOver();
-            return;
-        }
-
-        this.currentPlayer = nextPlayerIndex;
-        this.players[this.currentPlayer].isActive = true;
-        console.log(`Next player: ${this.players[this.currentPlayer].name} (Index: ${this.currentPlayer})`);
-        this.syncGameState();
-    }
-
-    checkGameOver() {
-        let playersWithCards = 0;
-        let lastPlayerWithCards = -1;
-        let totalCards = 0;
-        let jokerFound = false;
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].hand.length > 0) {
-                playersWithCards++;
-                lastPlayerWithCards = i;
-                totalCards += this.players[i].hand.length;
-                if (this.players[i].hand.some(card => card.isJoker)) jokerFound = true;
-            }
-        }
-        console.log(`Players with cards: ${playersWithCards}, Total cards left: ${totalCards}, Joker present: ${jokerFound}`);
-        if (!jokerFound) {
-            console.error("Game ended without the Joker in play!");
-            return false;
-        }
-        if (playersWithCards === 1) {
-            const lastPlayer = this.players[lastPlayerWithCards];
-            if (lastPlayer.hand.some(card => card.isJoker)) {
-                this.gameOver = true;
-                this.loser = lastPlayerWithCards;
-                for (let i = 0; i < this.players.length; i++) {
-                    this.players[i].isLoser = (i === lastPlayerWithCards);
-                    if (i !== lastPlayerWithCards) {
-                        this.winner = i;
-                        break;
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
     }
 
     endGame() {
@@ -451,9 +271,11 @@ class JackAssGame {
         if (isLoser) {
             resultText.textContent = "You Lost!";
             winnerText.textContent = "You got stuck with the JackAss!";
+            this.playSound('losing-sound-effect');
         } else {
             resultText.textContent = "You Won!";
             winnerText.textContent = `${this.players[this.loser].name} got stuck with the JackAss!`;
+            this.playSound('win-jingle');
         }
         gameOverScreen.classList.remove('hidden');
         saveStats(!isLoser);
