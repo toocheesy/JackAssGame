@@ -49,7 +49,7 @@
             <h1 id="game-result">Game Over!</h1>
             <p id="winner-text"></p>
             <p id="stats-text"></p>
-            <a href="javascript:window.location.reload()" class="btn">Play Again</a>
+            <button class="btn" onclick="resetGame()">Play Again</button>
         </div>
     </div>
 
@@ -98,10 +98,15 @@
                 game = new JackAssGame('game-board', playerName);
                 game.startGame();
                 document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('game-over-screen').classList.add('hidden');
             } catch (error) {
                 console.error('Failed to start game:', error);
                 alert('Failed to start the game. Please try again.');
             }
+        }
+
+        function resetGame() {
+            startGame();
         }
     </script>
 </body>
