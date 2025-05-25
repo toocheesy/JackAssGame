@@ -211,30 +211,53 @@ class JackAssGame {
         }
 
         const card = targetPlayer.hand.splice(cardIndex, 1)[0];
-        const pickedCardDiv = document.createElement('div');
-        pickedCardDiv.className = 'picked-card';
-        pickedCardDiv.innerHTML = `
-            <div class="card picked">
-                <div class="card-face">
-                    <div class="card-value ${card.getColor()}">${card.getDisplayValue()}</div>
-                    ${!card.isJoker ? `<div class="card-suit ${card.getColor()}">${card.suit}</div>` : ''}
+        if (actorId === 'human') {
+            const pickedCardDiv = document.createElement('div');
+            pickedCardDiv.className = 'picked-card';
+            pickedCardDiv.innerHTML = `
+                <div class="card picked">
+                    <div class="card-face">
+                        <div class="card-value ${card.getColor()}">${card.getDisplayValue()}</div>
+                        ${!card.isJoker ? `<div class="card-suit ${card.getColor()}">${card.suit}</div>` : ''}
+                    </div>
                 </div>
-            </div>
-        `;
-        document.getElementById('game-board').appendChild(pickedCardDiv);
+            `;
+            document.getElementById('game-board').appendChild(pickedCardDiv);
 
-        setTimeout(() => {
-            pickedCardDiv.remove();
-            currentPlayer.hand.push(card);
-            this.checkForPairs(currentPlayer);
+            setTimeout(() => {
+                pickedCardDiv.remove();
+                currentPlayer.hand.push(card);
+                this.checkForPairs(currentPlayer);
 
-            if (targetPlayer.hand.length === 0 || currentPlayer.hand.length === 0) {
-                this.checkGameOver();
-            }
-            if (!this.gameOver) {
-                this.nextPlayer();
-            }
-        }, 1000);
+                if (currentPlayer.id === 'human' && currentPlayer.hand.length === 0) {
+                    this.gameOver = true;
+                    this.loser = -1; // No loser, human wins by being out of cards
+                    this.winner = this.players.findIndex(p => p.id === 'human');
+                    this.renderGame();
+                    this.endGame();
+                    return;
+                }
+                if (targetPlayer.hand.length === 0) {
+                    this.checkGameOver();
+                }
+                if (!this.gameOver) {
+                    this.nextPlayer();
+                }
+            }, 1000);
+        } else {
+            // Bot turn: don't show the card, just transfer it
+            setTimeout(() => {
+                currentPlayer.hand.push(card);
+                this.checkForPairs(currentPlayer);
+
+                if (targetPlayer.hand.length === 0) {
+                    this.checkGameOver();
+                }
+                if (!this.gameOver) {
+                    this.nextPlayer();
+                }
+            }, 1000);
+        }
     }
 
     nextPlayer() {
@@ -410,22 +433,29 @@ class JackAssGame {
         const resultText = document.getElementById('game-result');
         const winnerText = document.getElementById('winner-text');
         const statsText = document.getElementById('stats-text');
-        if (this.loser === -1) return;
-
-        const isLoser = this.players[this.loser].id === 'human';
-        if (isLoser) {
-            resultText.textContent = "You Lost!";
-            winnerText.textContent = "You got stuck with the JackAss!";
-            this.playSound('losing-sound-effect');
-        } else {
-            resultText.textContent = "You Won!";
-            winnerText.textContent = `${this.players[this.loser].name} got stuck with the JackAss!`;
+        if (this.loser === -1 && this.winner !== -1) {
+            resultText.textContent = "You Win!";
+            winnerText.textContent = "You're out of cards!";
             this.playSound('win-jingle');
+        } else {
+            const isLoser = this.players[this.loser].id === 'human';
+            if (isLoser) {
+                resultText.textContent = "You Lost!";
+                winnerText.textContent = "You got stuck with the JackAss!";
+                this.playSound('losing-sound-effect');
+            } else {
+                resultText.textContent = "You Won!";
+                winnerText.textContent = `${this.players[this.loser].name} got stuck with the JackAss!`;
+                this.playSound('win-jingle');
+            }
         }
         const stats = JSON.parse(localStorage.getItem('jackassStats') || '{"wins":0,"losses":0,"games":0}');
         statsText.textContent = `Stats - Wins: ${stats.wins}, Losses: ${stats.losses}, Games: ${stats.games}`;
         gameOverScreen.classList.remove('hidden');
-        saveStats(!isLoser);
+        saveStats(this.winner === this.players.findIndex(p => p.id === 'human'));
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
     }
 }
 
