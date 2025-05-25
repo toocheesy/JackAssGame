@@ -35,7 +35,7 @@
     <div id="start-screen" class="start-screen">
         <div class="modal-content">
             <h1>JackAss Card Game</h1>
-            <p>You vs. 3 bots. Don't get stuck with the Joker!</p>
+            <p>Don't get stuck with the Joker!</p>
             <div>
                 <label for="player-name">Enter Your Name (or leave blank for Guest):</label>
                 <input type="text" id="player-name" maxlength="20">
@@ -48,9 +48,12 @@
         <div class="modal-content">
             <h1 id="game-result">Game Over!</h1>
             <p id="winner-text"></p>
+            <p id="stats-text"></p>
             <a href="javascript:window.location.reload()" class="btn">Play Again</a>
         </div>
     </div>
+
+    <div id="toast" class="toast hidden"></div>
 
     <audio id="win-jingle" src="/win-jingle.mp3" preload="auto"></audio>
     <audio id="losing-sound-effect" src="/losing-sound-effect.mp3" preload="auto"></audio>
@@ -60,11 +63,30 @@
     <script>
         let game;
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2000);
+        }
+
         function startGame() {
-            const playerName = document.getElementById('player-name').value || `Guest${Math.floor(Math.random() * 1000)}`;
-            game = new JackAssGame('game-board', playerName);
-            game.startGame();
-            document.getElementById('start-screen').classList.add('hidden');
+            const playerNameInput = document.getElementById('player-name');
+            let playerName = playerNameInput.value.trim();
+            if (!playerName) {
+                playerName = `Guest${Math.floor(Math.random() * 1000)}`;
+                playerNameInput.value = playerName;
+            }
+            try {
+                game = new JackAssGame('game-board', playerName);
+                game.startGame();
+                document.getElementById('start-screen').classList.add('hidden');
+            } catch (error) {
+                console.error('Failed to start game:', error);
+                alert('Failed to start the game. Please try again.');
+            }
         }
     </script>
 </body>

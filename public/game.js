@@ -74,8 +74,9 @@ class JackAssGame {
             isBot: false
         };
         this.players.push(humanPlayer);
+        const botNames = ['CardBot 3000', 'ShuffleTron', 'JokerBuster X'];
         for (let i = 0; i < 3; i++) {
-            const bot = new BotPlayer(`bot${i}`, `Bot${i + 1}`);
+            const bot = new BotPlayer(`bot${i}`, botNames[i]);
             this.players.push(bot);
         }
 
@@ -203,6 +204,9 @@ class JackAssGame {
         const selectablePlayerIndex = this.findNextPlayerWithCards(this.currentPlayer);
         if (selectablePlayerIndex !== playerIndex) {
             console.log(`Must pick from Player ${selectablePlayerIndex}!`);
+            if (actorId === 'human') {
+                showToast(`Must pick from ${this.players[selectablePlayerIndex].name}!`);
+            }
             return;
         }
 
@@ -326,12 +330,13 @@ class JackAssGame {
             const logicalIndex = this.players.findIndex(p => p.id === player.id);
             const isSelectable = logicalIndex === selectablePlayerIndex && visualIndex === 1;
 
-            const activeClass = player.isActive ? 'active' : '';
+            const activeClass = player.isActive ? 'active bot-active' : '';
             const loserClass = player.isLoser ? 'loser' : '';
             let html = `
                 <div class="player ${activeClass} ${loserClass}">
                     <h3>${player.name}</h3>
                     <div class="pair-count">Pairs: ${player.pairs.length}</div>
+                    <div class="card-count">Cards: ${player.hand.length}</div>
                     <div class="player-cards">
                         ${player.hand.map((card, cardIndex) => `
                             <div class="card card-${logicalIndex}-${cardIndex} ${isSelectable && !this.gameOver ? 'selectable' : ''}" data-player="${logicalIndex}" data-index="${cardIndex}">
@@ -404,6 +409,7 @@ class JackAssGame {
         const gameOverScreen = document.getElementById('game-over-screen');
         const resultText = document.getElementById('game-result');
         const winnerText = document.getElementById('winner-text');
+        const statsText = document.getElementById('stats-text');
         if (this.loser === -1) return;
 
         const isLoser = this.players[this.loser].id === 'human';
@@ -416,6 +422,8 @@ class JackAssGame {
             winnerText.textContent = `${this.players[this.loser].name} got stuck with the JackAss!`;
             this.playSound('win-jingle');
         }
+        const stats = JSON.parse(localStorage.getItem('jackassStats') || '{"wins":0,"losses":0,"games":0}');
+        statsText.textContent = `Stats - Wins: ${stats.wins}, Losses: ${stats.losses}, Games: ${stats.games}`;
         gameOverScreen.classList.remove('hidden');
         saveStats(!isLoser);
     }
