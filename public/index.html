@@ -15,8 +15,8 @@
         <h1 class="title">JackAss</h1>
         <div class="nav-buttons">
             <button onclick="alert('Play against 3 bots, pick cards to form pairs, and avoid the Joker!')">How to Play</button>
-            <button onclick='alert(JSON.stringify(JSON.parse(localStorage.getItem("jackassStats") || "{\"wins\":0,\"losses\":0,\"games\":0}")))'>Stats</button>
-            <button onclick="window.open('https://forms.gle/YOUR_FEEDBACK_FORM_LINK', '_blank')">Feedback</button>
+            <button onclick="showStatsModal()">Stats</button>
+            <button onclick="window.open('https://forms.gle/REPLACE_WITH_YOUR_FORM', '_blank')">Feedback</button>
         </div>
     </header>
 
@@ -55,6 +55,15 @@
 
     <div id="toast" class="toast hidden"></div>
 
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="start-screen hidden">
+        <div class="modal-content">
+            <h1>Game Stats</h1>
+            <p id="stats-content"></p>
+            <button class="btn" onclick="document.getElementById('stats-modal').classList.add('hidden')">Close</button>
+        </div>
+    </div>
+
     <audio id="win-jingle" src="/win-jingle.mp3" preload="auto"></audio>
     <audio id="losing-sound-effect" src="/losing-sound-effect.mp3" preload="auto"></audio>
     <audio id="match-made" src="/match-made.mp3" preload="auto"></audio>
@@ -70,6 +79,12 @@
             setTimeout(() => {
                 toast.classList.add('hidden');
             }, 2000);
+        }
+
+        function showStatsModal() {
+            const stats = JSON.parse(localStorage.getItem("jackassStats") || "{\"wins\":0,\"losses\":0,\"games\":0}");
+            document.getElementById('stats-content').textContent = `Wins: ${stats.wins} | Losses: ${stats.losses} | Games Played: ${stats.games}`;
+            document.getElementById('stats-modal').classList.remove('hidden');
         }
 
         function startGame() {
