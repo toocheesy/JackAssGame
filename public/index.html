@@ -4,23 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JackAss Card Game</title>
-    <meta name="description" content="A chaotic, fun card game where you avoid the Joker and outsmart your friends. Play online for free!">
-    <meta name="keywords" content="card game, jackass, joker game, multiplayer, online game">
-    <meta name="author" content="toocheesy">
-    <meta property="og:title" content="JackAss Card Game">
-    <meta property="og:description" content="Be strategic. Avoid the Joker. Don't be the JackAss!">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://jackassgame.onrender.com">
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXXX');
-    </script>
-
     <link rel="stylesheet" href="/styles.css">
+    <script src="/game.js" defer></script>
 </head>
 <body>
     <header class="header">
@@ -29,9 +14,9 @@
         </div>
         <h1 class="title">JackAss</h1>
         <div class="nav-buttons">
-            <button onclick="alert('Join a table with 3 bots. Avoid the Joker!')">How to Play</button>
-            <button onclick="showStats()">Stats</button>
-            <button onclick="window.open('https://forms.gle/example-feedback-form')">Feedback</button>
+            <button onclick="alert('Play against 3 bots, pick cards to form pairs, and avoid the Joker!')">How to Play</button>
+            <button onclick='alert(JSON.stringify(JSON.parse(localStorage.getItem("jackassStats") || "{\"wins\":0,\"losses\":0,\"games\":0}")))'>Stats</button>
+            <button onclick="window.open('https://forms.gle/YOUR_FEEDBACK_FORM_LINK', '_blank')">Feedback</button>
         </div>
     </header>
 
@@ -44,7 +29,7 @@
     </div>
 
     <footer class="footer">
-        JackAss Card Game © 2025 | <a href="/privacy.html" style="color:#d4a017">Privacy</a> | <a href="/terms.html" style="color:#d4a017">Terms</a>
+        JackAss Card Game © 2025 | <a href="#">Privacy</a> | <a href="#">Terms</a>
     </footer>
 
     <div id="start-screen" class="start-screen">
@@ -55,8 +40,7 @@
                 <label for="player-name">Enter Your Name (or leave blank for Guest):</label>
                 <input type="text" id="player-name" maxlength="20">
             </div>
-            <button class="btn btn-play" onclick="joinGame()">Join Game</button>
-            <p id="waiting-message">Launching table with bots...</p>
+            <button class="btn btn-play" onclick="startGame()">Join Game</button>
         </div>
     </div>
 
@@ -73,28 +57,15 @@
     <audio id="match-made" src="/match-made.mp3" preload="auto"></audio>
     <audio id="player-turn" src="/player-turn.mp3" preload="auto"></audio>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
         let game;
 
-        function joinGame() {
-            const playerName = document.getElementById('player-name').value;
-            socket.emit('joinGame', { playerName }, (response) => {
-                if (response.success) {
-                    game = new JackAssGame('game-board', socket, response.tableId);
-                    document.getElementById('start-screen').classList.add('hidden');
-                } else {
-                    alert('Failed to join game: ' + response.error);
-                }
-            });
-        }
-
-        function showStats() {
-            const stats = JSON.parse(localStorage.getItem('jackassStats') || '{"wins":0,"losses":0,"games":0}');
-            alert(`Games Played: ${stats.games}\nWins: ${stats.wins}\nLosses: ${stats.losses}\nWin Rate: ${stats.games ? ((stats.wins / stats.games) * 100).toFixed(2) : 0}%`);
+        function startGame() {
+            const playerName = document.getElementById('player-name').value || `Guest${Math.floor(Math.random() * 1000)}`;
+            game = new JackAssGame('game-board', playerName);
+            game.startGame();
+            document.getElementById('start-screen').classList.add('hidden');
         }
     </script>
-    <script src="/game.js"></script>
 </body>
 </html>
