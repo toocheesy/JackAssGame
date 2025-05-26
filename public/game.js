@@ -47,7 +47,7 @@ class BotPlayer {
 }
 
 class JackAssGame {
-    constructor(containerId, playerName) {
+    constructor(containerId, playerName, pairLogCallback) {
         this.containerId = containerId;
         this.players = [];
         this.currentPlayer = 0;
@@ -56,6 +56,7 @@ class JackAssGame {
         this.loser = -1;
         this.selectedCard = null;
         this.humanPlayerName = playerName;
+        this.showPairLog = pairLogCallback || (() => {});
     }
 
     startGame() {
@@ -157,6 +158,10 @@ class JackAssGame {
                 const card1 = cards.pop();
                 const card2 = cards.pop();
                 player.pairs.push([card1, card2]);
+                // Add pair logging for human player
+                if (player.id === 'human') {
+                    this.showPairLog(`Formed pair: ${card1.getDisplayValue()}s`);
+                }
             }
             newHand.push(...cards);
         }
@@ -453,9 +458,7 @@ class JackAssGame {
         statsText.textContent = `Stats - Wins: ${stats.wins}, Losses: ${stats.losses}, Games: ${stats.games}`;
         gameOverScreen.classList.remove('hidden');
         saveStats(this.winner === this.players.findIndex(p => p.id === 'human'));
-        setTimeout(() => {
-            window.location.reload();
-        }, 3000);
+        // Removed automatic page reload - now controlled externally
     }
 }
 

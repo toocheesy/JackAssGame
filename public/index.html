@@ -64,6 +64,9 @@
         </div>
     </div>
 
+    <!-- Discard Log -->
+    <div id="pair-log" class="toast hidden" style="top: 60px; background: #1e3d1c;"></div>
+
     <audio id="win-jingle" src="/win-jingle.mp3" preload="auto"></audio>
     <audio id="losing-sound-effect" src="/losing-sound-effect.mp3" preload="auto"></audio>
     <audio id="match-made" src="/match-made.mp3" preload="auto"></audio>
@@ -81,6 +84,15 @@
             }, 2000);
         }
 
+        function showPairLog(message) {
+            const log = document.getElementById('pair-log');
+            log.textContent = message;
+            log.classList.remove('hidden');
+            setTimeout(() => {
+                log.classList.add('hidden');
+            }, 2500);
+        }
+
         function showStatsModal() {
             const stats = JSON.parse(localStorage.getItem("jackassStats") || "{\"wins\":0,\"losses\":0,\"games\":0}");
             document.getElementById('stats-content').textContent = `Wins: ${stats.wins} | Losses: ${stats.losses} | Games Played: ${stats.games}`;
@@ -95,7 +107,7 @@
                 playerNameInput.value = playerName;
             }
             try {
-                game = new JackAssGame('game-board', playerName);
+                game = new JackAssGame('game-board', playerName, showPairLog);
                 game.startGame();
                 document.getElementById('start-screen').classList.add('hidden');
                 document.getElementById('game-over-screen').classList.add('hidden');
