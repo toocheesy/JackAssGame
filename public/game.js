@@ -371,7 +371,7 @@ class JackAssGame {
             container.className = `player-position player-${visualIndex}`;
 
             const logicalIndex = this.players.findIndex(p => p.id === player.id);
-            const isSelectable = logicalIndex === selectablePlayerIndex && visualIndex === 1;
+            const isSelectable = logicalIndex === selectablePlayerIndex;
 
             const activeClass = player.isActive ? 'active bot-active' : '';
             const loserClass = player.isLoser ? 'loser' : '';
@@ -432,7 +432,8 @@ class JackAssGame {
             return;
         }
 
-        const cards = document.querySelectorAll(`.player-1 .card.selectable`);
+        // Look for selectable cards in ANY player position, not just player-1
+        const cards = document.querySelectorAll('.card.selectable');
         console.log('DEBUG: Found selectable cards:', cards.length);
         
         cards.forEach((cardElement, idx) => {
