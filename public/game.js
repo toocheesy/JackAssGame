@@ -200,22 +200,37 @@ class JackAssGame {
     }
 
     humanSelectCard(playerIndex, cardIndex, actorId) {
+        console.log('DEBUG: humanSelectCard called');
+        console.log('DEBUG: playerIndex:', playerIndex, 'cardIndex:', cardIndex, 'actorId:', actorId);
+        
         const currentPlayer = this.players[this.currentPlayer];
         const targetPlayer = this.players[playerIndex];
+        
+        console.log('DEBUG: currentPlayer:', currentPlayer.name, 'isActive:', currentPlayer.isActive);
+        console.log('DEBUG: targetPlayer:', targetPlayer.name, 'hand length:', targetPlayer.hand.length);
+        
         if (!currentPlayer.isActive || targetPlayer.hand.length === 0 || cardIndex < 0 || cardIndex >= targetPlayer.hand.length) {
-            console.log('Invalid move!');
+            console.log('DEBUG: Invalid move detected!');
+            console.log('DEBUG: currentPlayer.isActive:', currentPlayer.isActive);
+            console.log('DEBUG: targetPlayer.hand.length:', targetPlayer.hand.length);
+            console.log('DEBUG: cardIndex:', cardIndex, 'valid range: 0 to', targetPlayer.hand.length - 1);
             return;
         }
+        
         const selectablePlayerIndex = this.findNextPlayerWithCards(this.currentPlayer);
+        console.log('DEBUG: selectablePlayerIndex:', selectablePlayerIndex, 'playerIndex:', playerIndex);
+        
         if (selectablePlayerIndex !== playerIndex) {
-            console.log(`Must pick from Player ${selectablePlayerIndex}!`);
+            console.log(`DEBUG: Must pick from Player ${selectablePlayerIndex}!`);
             if (actorId === 'human') {
                 showToast(`Must pick from ${this.players[selectablePlayerIndex].name}!`);
             }
             return;
         }
 
+        console.log('DEBUG: All checks passed, proceeding with card selection');
         const card = targetPlayer.hand.splice(cardIndex, 1)[0];
+        
         if (actorId === 'human') {
             const pickedCardDiv = document.createElement('div');
             pickedCardDiv.className = 'picked-card';
@@ -407,21 +422,38 @@ class JackAssGame {
 
     addCardSelectionListeners() {
         const selectablePlayerIndex = this.findNextPlayerWithCards(this.currentPlayer);
-        if (selectablePlayerIndex === -1) return;
+        console.log('DEBUG: addCardSelectionListeners called');
+        console.log('DEBUG: selectablePlayerIndex:', selectablePlayerIndex);
+        console.log('DEBUG: currentPlayer:', this.currentPlayer);
+        console.log('DEBUG: players with cards:', this.players.map((p, i) => ({index: i, name: p.name, cards: p.hand.length})));
+        
+        if (selectablePlayerIndex === -1) {
+            console.log('DEBUG: No selectable player found, returning');
+            return;
+        }
 
         const cards = document.querySelectorAll(`.player-1 .card.selectable`);
-        cards.forEach(cardElement => {
+        console.log('DEBUG: Found selectable cards:', cards.length);
+        
+        cards.forEach((cardElement, idx) => {
+            console.log(`DEBUG: Setting up listener for card ${idx}:`, cardElement);
             cardElement.removeEventListener('click', cardElement.clickHandler);
             cardElement.clickHandler = () => {
                 const playerIndex = parseInt(cardElement.getAttribute('data-player'));
                 const cardIndex = parseInt(cardElement.getAttribute('data-index'));
                 const cardKey = `${playerIndex}-${cardIndex}`;
+                
+                console.log('DEBUG: Card clicked!');
+                console.log('DEBUG: playerIndex:', playerIndex, 'cardIndex:', cardIndex);
+                console.log('DEBUG: selectablePlayerIndex:', selectablePlayerIndex);
 
                 if (this.selectedCard && this.selectedCard.key === cardKey) {
+                    console.log('DEBUG: Executing card selection');
                     this.humanSelectCard(playerIndex, cardIndex, 'human');
                     this.selectedCard.element.classList.remove('pre-selected');
                     this.selectedCard = null;
                 } else {
+                    console.log('DEBUG: Pre-selecting card');
                     if (this.selectedCard) {
                         this.selectedCard.element.classList.remove('pre-selected');
                     }
