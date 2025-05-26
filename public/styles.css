@@ -13,12 +13,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden; /* Prevent scrolling */
 }
 
 .header {
     background: #1e3d1c;
-    padding: 10px 20px;
+    padding: 5px 10px; /* Reduced padding to save space */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -29,7 +30,7 @@ body {
 .logo {
     position: relative;
     display: inline-block;
-    margin-bottom: 10px;
+    margin-bottom: 5px; /* Reduced margin */
 }
 
 .logo-text {
@@ -113,7 +114,7 @@ body {
     color: #d4a017;
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-bottom: 10px;
+    margin-bottom: 5px; /* Reduced margin */
     position: relative;
     filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
 }
@@ -133,8 +134,8 @@ body {
     background: #b8502a;
     border: 3px solid #9b2d2d;
     color: #e0dede;
-    padding: 5px 15px;
-    margin: 0 5px;
+    padding: 5px 10px; /* Reduced padding */
+    margin: 0 3px; /* Reduced margin */
     cursor: pointer;
     font-size: 16px;
     font-family: 'Courier New', Courier, monospace;
@@ -162,17 +163,18 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 10px; /* Reduced padding */
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    overflow: hidden; /* Prevent internal scrolling */
 }
 
 .game-info {
     background: #1e3d1c;
-    padding: 10px 20px;
+    padding: 5px 10px; /* Reduced padding */
     border-radius: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px; /* Reduced margin */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -197,14 +199,14 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px; /* Reduced gap */
 }
 
 .table {
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: 600px;
+    min-height: 400px; /* Reduced from 600px to fit smaller viewports */
 }
 
 .player-position {
@@ -215,35 +217,35 @@ body {
 }
 
 .player-0 {
-    bottom: 20px;
+    bottom: 10px; /* Reduced offset */
     left: 50%;
     transform: translateX(-50%);
 }
 
 .player-1 {
-    left: 20px;
+    left: 10px; /* Reduced offset */
     top: 50%;
     transform: translateY(-50%) rotate(90deg);
 }
 
 .player-2 {
-    top: 20px;
+    top: 10px; /* Reduced offset */
     left: 50%;
     transform: translateX(-50%) rotate(180deg);
 }
 
 .player-3 {
-    right: 20px;
+    right: 10px; /* Reduced offset */
     top: 50%;
     transform: translateY(-50%) rotate(-90deg);
 }
 
 .player {
     background: rgba(0,0,0,0.2);
-    padding: 10px;
+    padding: 5px; /* Reduced padding */
     border-radius: 10px;
     text-align: center;
-    width: 300px;
+    width: 250px; /* Reduced width */
     border: 3px solid #9b2d2d;
     filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
 }
@@ -282,14 +284,14 @@ body {
 
 h3 {
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem; /* Reduced margin */
     font-family: 'Courier New', Courier, monospace;
     color: #d4a017;
 }
 
 .pair-count, .card-count {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.9rem; /* Reduced font size */
+    margin-bottom: 0.3rem; /* Reduced margin */
     color: #d4a017;
     font-family: 'Courier New', Courier, monospace;
 }
@@ -298,13 +300,13 @@ h3 {
     display: flex;
     justify-content: center;
     gap: -10px;
-    margin: 10px 0;
-    min-height: 90px;
+    margin: 5px 0; /* Reduced margin */
+    min-height: 70px; /* Reduced min-height */
 }
 
 .card {
-    width: 60px;
-    height: 90px;
+    width: 50px; /* Reduced width */
+    height: 75px; /* Reduced height */
     background: white;
     border: 3px solid #9b2d2d;
     border-radius: 8px;
@@ -363,7 +365,7 @@ h3 {
     font-weight: bold;
     border-radius: 8px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 12px; /* Reduced font size */
 }
 
 .card-face {
@@ -372,17 +374,17 @@ h3 {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 5px;
+    padding: 3px; /* Reduced padding */
     color: black;
 }
 
 .card-value {
-    font-size: 18px;
+    font-size: 16px; /* Reduced font size */
     font-weight: bold;
 }
 
 .card-suit {
-    font-size: 24px;
+    font-size: 20px; /* Reduced font size */
 }
 
 .red {
@@ -407,11 +409,11 @@ h3 {
     background: #b8502a;
     border: 3px solid #9b2d2d;
     color: #e0dede;
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: 6px 12px; /* Reduced padding */
+    font-size: 12px; /* Reduced font size */
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 5px; /* Reduced margin */
     margin-right: 5px;
     font-family: 'Courier New', Courier, monospace;
     filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
@@ -435,10 +437,10 @@ h3 {
 
 .message {
     text-align: center;
-    padding: 15px;
+    padding: 10px; /* Reduced padding */
     background: rgba(0,0,0,0.3);
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 16px; /* Reduced font size */
     font-family: 'Courier New', Courier, monospace;
     border: 3px solid #9b2d2d;
     filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
@@ -458,15 +460,15 @@ h3 {
 
 .btn {
     display: inline-block;
-    padding: 15px 30px;
-    font-size: 24px;
+    padding: 10px 20px; /* Reduced padding */
+    font-size: 20px; /* Reduced font size */
     font-family: 'Courier New', Courier, monospace;
     color: #e0dede;
     background-color: #b8502a;
     border: 3px solid #9b2d2d;
     border-radius: 5px;
     text-decoration: none;
-    margin: 10px;
+    margin: 5px; /* Reduced margin */
     position: relative;
     transition: transform 0.2s ease;
     filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
@@ -491,10 +493,10 @@ h3 {
 .btn-play::after {
     content: '♠';
     position: absolute;
-    font-size: 20px;
+    font-size: 16px; /* Reduced font size */
     color: #9b2d2d;
-    top: 10px;
-    right: 10px;
+    top: 8px; /* Adjusted for smaller button */
+    right: 8px;
 }
 
 .start-screen, .game-over-screen, .modal {
@@ -518,7 +520,7 @@ h3 {
 
 .modal-content {
     background: #2b2b2b;
-    padding: 40px;
+    padding: 20px; /* Reduced padding */
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
@@ -539,7 +541,7 @@ h3 {
 }
 
 h1 {
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* Reduced margin */
     font-family: 'Courier New', Courier, monospace;
     color: #d4a017;
     text-transform: uppercase;
@@ -551,7 +553,7 @@ h1 {
 
 .footer {
     background: #1e3d1c;
-    padding: 1rem;
+    padding: 0.5rem; /* Reduced padding */
     text-align: center;
     font-family: 'Courier New', Courier, monospace;
     border-top: 3px solid #9b2d2d;
@@ -573,29 +575,33 @@ h1 {
 .footer a {
     color: #d4a017;
     text-decoration: none;
-    margin: 0 5px;
+    margin: 0 3px; /* Reduced margin */
 }
 
 .footer a:hover {
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
+/* Media query for smaller heights */
+@media (max-height: 768px) {
+    .table {
+        min-height: 300px; /* Further reduce for smaller heights */
+    }
+
     .player-position {
-        width: 100%;
         transform: none !important;
         position: static;
-        margin: 10px 0;
+        margin: 5px 0;
     }
 
     .player {
         width: 100%;
-        max-width: 300px;
+        max-width: 200px; /* Further reduced width */
     }
 
     .card {
-        width: 50px;
-        height: 75px;
+        width: 40px; /* Further reduced width */
+        height: 60px; /* Further reduced height */
     }
 
     .card-value {
@@ -603,7 +609,67 @@ h1 {
     }
 
     .card-suit {
-        font-size: 20px;
+        font-size: 18px;
+    }
+
+    .logo-text {
+        font-size: 40px;
+        letter-spacing: -5px;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .nav-buttons button {
+        padding: 3px 8px;
+        font-size: 14px;
+    }
+
+    .game-info {
+        padding: 3px 8px;
+    }
+
+    .message {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .modal-content {
+        padding: 15px;
+    }
+
+    .btn {
+        padding: 8px 15px;
+        font-size: 18px;
+    }
+}
+
+/* Media query for smaller widths (existing) */
+@media (max-width: 768px) {
+    .player-position {
+        width: 100%;
+        transform: none !important;
+        position: static;
+        margin: 5px 0;
+    }
+
+    .player {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .card {
+        width: 40px;
+        height: 60px;
+    }
+
+    .card-value {
+        font-size: 14px;
+    }
+
+    .card-suit {
+        font-size: 18px;
     }
 
     .logo-text {
