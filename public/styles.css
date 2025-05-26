@@ -403,7 +403,7 @@ h3 {
     100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
 }
 
-.shuffle-button {
+.shuffle-button, .quit-button {
     background: #b8502a;
     border: 3px solid #9b2d2d;
     color: #e0dede;
@@ -412,15 +412,16 @@ h3 {
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
+    margin-right: 5px;
     font-family: 'Courier New', Courier, monospace;
     filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
 }
 
-.shuffle-button:hover {
+.shuffle-button:hover, .quit-button:hover {
     transform: scale(1.05);
 }
 
-.shuffle-button::before {
+.shuffle-button::before, .quit-button::before {
     content: '';
     position: absolute;
     width: 100%;
@@ -496,7 +497,7 @@ h3 {
     right: 10px;
 }
 
-.start-screen, .game-over-screen {
+.start-screen, .game-over-screen, .modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -511,7 +512,7 @@ h3 {
     transition: opacity 0.5s ease;
 }
 
-.start-screen:not(.hidden), .game-over-screen:not(.hidden) {
+.start-screen:not(.hidden), .game-over-screen:not(.hidden), .modal:not(.hidden) {
     opacity: 1;
 }
 
