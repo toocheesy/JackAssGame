@@ -629,40 +629,36 @@ h3 {
   :root {
     --card-width: 26px;
     --card-height: 36px;
-    --player-width: 100%;
+    --player-width: 120px;
     --font-size-base: 11px;
     --font-size-sm: 9px;
     --font-size-xs: 7px;
     --player-padding: 2px;
+    --font-size-4xl: 24px;
+    --font-size-3xl: 18px;
   }
 
   .table {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-areas: 
+      ". player-2 ."
+      "player-1 center player-3"
+      ". player-0 .";
+    grid-template-rows: 1fr auto 1fr;
+    grid-template-columns: 1fr auto 1fr;
     gap: var(--space-xs);
     padding: var(--space-xs);
-    overflow-y: auto;
-    max-height: 100%;
-  }
-
-  .player-position {
-    transform: none !important;
-    width: 100%;
-    max-width: 100%;
-    justify-content: center;
+    overflow: auto;
+    min-height: 0;
   }
 
   .player {
-    width: 100%;
-    max-width: 100%;
+    width: var(--player-width);
     padding: var(--space-xs);
     font-size: var(--font-size-xs);
   }
 
   .player-cards {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
     min-height: 40px;
   }
 
@@ -684,6 +680,14 @@ h3 {
   }
 
   .nav-buttons button {
+    font-size: var(--font-size-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .toast {
+    top: var(--space-md);
+    right: var(--space-md);
+    left: var(--space-md);
     font-size: var(--font-size-xs);
     padding: var(--space-xs) var(--space-sm);
   }
