@@ -149,6 +149,9 @@
 
         // Add keyboard support for Enter key in name input
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up button and input...');
+            
+            // Set up keyboard support for name input
             const playerNameInput = document.getElementById('player-name');
             if (playerNameInput) {
                 playerNameInput.addEventListener('keypress', function(e) {
@@ -156,6 +159,36 @@
                         startGame();
                     }
                 });
+            }
+            
+            // Force button to work with event listener
+            const joinBtn = document.querySelector('.btn-play');
+            if (joinBtn) {
+                console.log('Button found, adding click listener');
+                
+                // Remove existing onclick
+                joinBtn.removeAttribute('onclick');
+                
+                // Add new event listener
+                joinBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Join Game button clicked!');
+                    startGame();
+                });
+                
+                // Also add mousedown as backup
+                joinBtn.addEventListener('mousedown', function(e) {
+                    console.log('Button mousedown detected');
+                });
+                
+                // Add visual feedback
+                joinBtn.addEventListener('mouseenter', function(e) {
+                    console.log('Button hover detected');
+                });
+                
+            } else {
+                console.error('Join Game button not found!');
             }
         });
 
