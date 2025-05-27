@@ -95,7 +95,8 @@ body {
   flex-direction: column;
   align-items: center;
   height: 100vh;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   line-height: 1.4;
 }
 
@@ -233,6 +234,7 @@ body {
 
 /* ===== GAME CONTAINER ===== */
 .game-container {
+  padding-bottom: 50px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -240,7 +242,8 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .game-info {
@@ -639,6 +642,7 @@ h3 {
 
 @media (max-width: 768px) {
   .game-container {
+  padding-bottom: 50px;
     padding: var(--space-sm);
   }
 
