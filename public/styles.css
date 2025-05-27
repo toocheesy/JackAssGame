@@ -840,14 +840,58 @@ h3 {
 .footer.textured::before {
   border-radius: inherit;
 }
-/* Force button to be clickable */
-.btn-play {
+/* COMPLETE MODAL FIX - Add at very bottom */
+.start-screen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.9) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 99999 !important;
     pointer-events: auto !important;
-    z-index: 9999 !important;
-    position: relative !important;
 }
 
-.modal-content {
-    z-index: 9998 !important;
+.start-screen .modal-content {
+    background: var(--color-bg-main) !important;
+    padding: 40px !important;
+    border-radius: 10px !important;
+    text-align: center !important;
     position: relative !important;
+    z-index: 100000 !important;
+    pointer-events: auto !important;
+    max-width: 90vw !important;
+    max-height: 90vh !important;
+}
+
+.start-screen input {
+    pointer-events: auto !important;
+    z-index: 100001 !important;
+    position: relative !important;
+    background: white !important;
+    color: black !important;
+    border: 2px solid #9b2d2d !important;
+    padding: 8px !important;
+    border-radius: 5px !important;
+}
+
+.start-screen .btn-play {
+    pointer-events: auto !important;
+    z-index: 100002 !important;
+    position: relative !important;
+    background: #b8502a !important;
+    color: #e0dede !important;
+    border: 3px solid #9b2d2d !important;
+    padding: 15px 30px !important;
+    font-size: 20px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+}
+
+.start-screen .btn-play:hover {
+    transform: scale(1.05) !important;
+    background: #c96235 !important;
 }
