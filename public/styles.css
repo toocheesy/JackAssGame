@@ -627,82 +627,63 @@ h3 {
 
 @media (max-width: 480px) {
   :root {
-    --card-width: 30px;
-    --card-height: 42px;
-    --player-width: 150px; /* Reduced to fit narrow screens */
-    --player-padding: 4px;
-    --font-size-4xl: 24px;
-    --font-size-3xl: 18px;
-    --font-size-base: 12px;
-    --font-size-sm: 10px;
-    --font-size-xs: 8px;
-  }
-
-  .game-container {
-    padding: var(--space-sm);
-  }
-
-  .card {
-    margin-left: -2px; /* Further reduced overlap to prevent overflow */
-  }
-
-  .player-cards {
-    min-height: 45px;
+    --card-width: 26px;
+    --card-height: 36px;
+    --player-width: 100%;
+    --font-size-base: 11px;
+    --font-size-sm: 9px;
+    --font-size-xs: 7px;
+    --player-padding: 2px;
   }
 
   .table {
-    grid-template-areas: 
-      "player-2"
-      "player-1"
-      "player-3"
-      "player-0";
-    grid-template-rows: auto auto auto auto;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
     padding: var(--space-xs);
+    overflow-y: auto;
+    max-height: 100%;
   }
 
-  .player-0,
-  .player-1,
-  .player-2,
-  .player-3 {
-    transform: none;
+  .player-position {
+    transform: none !important;
     width: 100%;
-    max-width: var(--player-width);
+    max-width: 100%;
+    justify-content: center;
   }
 
-  .header {
-    padding: var(--space-xs) var(--space-sm);
+  .player {
+    width: 100%;
+    max-width: 100%;
+    padding: var(--space-xs);
+    font-size: var(--font-size-xs);
   }
 
-  .nav-buttons {
-    gap: 2px;
+  .player-cards {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    min-height: 40px;
+  }
+
+  .card {
+    margin-left: -2px;
+  }
+
+  .game-container,
+  .game-board {
+    overflow: hidden;
+  }
+
+  .message,
+  .game-info,
+  .header,
+  .footer {
+    font-size: var(--font-size-xs);
+    padding: var(--space-xs);
   }
 
   .nav-buttons button {
-    padding: var(--space-xs) var(--space-sm);
-    font-size: var(--font-size-xs);
-  }
-
-  .game-info {
-    padding: var(--space-xs) var(--space-sm);
-    font-size: var(--font-size-xs);
-  }
-
-  .message {
-    padding: var(--space-xs);
-    font-size: var(--font-size-xs);
-    margin-top: var(--space-xs);
-  }
-
-  .footer {
-    padding: 2px;
-    font-size: var(--font-size-xs);
-  }
-
-  .toast {
-    top: var(--space-md);
-    right: var(--space-md);
-    left: var(--space-md);
     font-size: var(--font-size-xs);
     padding: var(--space-xs) var(--space-sm);
   }
