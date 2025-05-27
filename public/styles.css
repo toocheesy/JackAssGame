@@ -840,3 +840,14 @@ h3 {
 .footer.textured::before {
   border-radius: inherit;
 }
+/* Force button to be clickable */
+.btn-play {
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+    position: relative !important;
+}
+
+.modal-content {
+    z-index: 9998 !important;
+    position: relative !important;
+}
