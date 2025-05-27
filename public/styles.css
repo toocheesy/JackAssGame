@@ -232,6 +232,7 @@ body {
   min-height: 0;
 }
 
+/* ===== COMPACT GAME INFO ===== */
 .game-info {
   background: var(--color-bg-surface);
   padding: var(--space-sm) var(--space-md);
@@ -247,6 +248,7 @@ body {
   font-size: var(--font-size-sm);
 }
 
+/* ===== GAME BOARD ===== */
 .game-board {
   flex: 1;
   display: flex;
@@ -360,7 +362,7 @@ h3 {
   margin: var(--space-sm) 0;
   min-height: 65px;
   flex-wrap: nowrap;
-  overflow: visible;
+  overflow: hidden; /* Prevent card overflow */
 }
 
 .card {
@@ -377,7 +379,7 @@ h3 {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   user-select: none;
   flex-shrink: 0;
-  margin-left: -6px;
+  margin-left: -4px; /* Reduced overlap to prevent overflow */
 }
 
 .card:first-child {
@@ -623,11 +625,17 @@ h3 {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   :root {
     --card-width: 30px;
     --card-height: 42px;
-    --player-width: 160px;
+    --player-width: 150px; /* Reduced to fit narrow screens */
+    --player-padding: 4px;
+    --font-size-4xl: 24px;
+    --font-size-3xl: 18px;
+    --font-size-base: 12px;
+    --font-size-sm: 10px;
+    --font-size-xs: 8px;
   }
 
   .game-container {
@@ -635,7 +643,81 @@ h3 {
   }
 
   .card {
-    margin-left: -8px;
+    margin-left: -2px; /* Further reduced overlap to prevent overflow */
+  }
+
+  .player-cards {
+    min-height: 45px;
+  }
+
+  .table {
+    grid-template-areas: 
+      "player-2"
+      "player-1"
+      "player-3"
+      "player-0";
+    grid-template-rows: auto auto auto auto;
+    grid-template-columns: 1fr;
+    padding: var(--space-xs);
+  }
+
+  .player-0,
+  .player-1,
+  .player-2,
+  .player-3 {
+    transform: none;
+    width: 100%;
+    max-width: var(--player-width);
+  }
+
+  .header {
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .nav-buttons {
+    gap: 2px;
+  }
+
+  .nav-buttons button {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  .game-info {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  .message {
+    padding: var(--space-xs);
+    font-size: var(--font-size-xs);
+    margin-top: var(--space-xs);
+  }
+
+  .footer {
+    padding: 2px;
+    font-size: var(--font-size-xs);
+  }
+
+  .toast {
+    top: var(--space-md);
+    right: var(--space-md);
+    left: var(--space-md);
+    font-size: var(--font-size-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --card-width: 28px;
+    --card-height: 38px;
+    --player-width: 130px;
+    --player-padding: 3px;
+  }
+
+  .player-cards {
+    min-height: 40px;
   }
 }
 
@@ -658,10 +740,10 @@ h3 {
 
 .start-screen .modal-content {
   background: #2b2b2b !important;
-  padding: 40px !important;
+  padding: 20px !important; /* Reduced for mobile */
   border-radius: 10px !important;
   text-align: center !important;
-  max-width: 500px !important;
+  max-width: 90vw !important;
   width: 90vw !important;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.8) !important;
   border: 3px solid #9b2d2d !important;
@@ -670,21 +752,22 @@ h3 {
 .start-screen h1 {
   color: #d4a017 !important;
   font-family: 'Courier New', Courier, monospace !important;
-  margin-bottom: 20px !important;
-  font-size: 28px !important;
+  margin-bottom: 10px !important;
+  font-size: 20px !important;
 }
 
 .start-screen p {
   color: #e0dede !important;
-  margin-bottom: 20px !important;
-  font-size: 16px !important;
+  margin-bottom: 10px !important;
+  font-size: 14px !important;
 }
 
 .start-screen label {
   color: #e0dede !important;
   display: block !important;
-  margin-bottom: 10px !important;
+  margin-bottom: 8px !important;
   font-family: 'Courier New', Courier, monospace !important;
+  font-size: 12px !important;
 }
 
 .start-screen input[type="text"] {
@@ -692,11 +775,12 @@ h3 {
   background: white !important;
   color: black !important;
   border: 2px solid #9b2d2d !important;
-  padding: 10px !important;
+  padding: 6px !important;
   border-radius: 5px !important;
-  width: 250px !important;
-  margin-bottom: 20px !important;
-  font-size: 16px !important;
+  width: 100% !important;
+  max-width: 200px !important;
+  margin-bottom: 10px !important;
+  font-size: 14px !important;
   outline: none !important;
 }
 
@@ -710,8 +794,8 @@ h3 {
   background: #b8502a !important;
   color: #e0dede !important;
   border: 3px solid #9b2d2d !important;
-  padding: 15px 30px !important;
-  font-size: 20px !important;
+  padding: 10px 20px !important;
+  font-size: 16px !important;
   border-radius: 5px !important;
   cursor: pointer !important;
   font-family: 'Courier New', Courier, monospace !important;
@@ -742,11 +826,13 @@ h3 {
 
 .game-over-screen .modal-content {
   background: #2b2b2b !important;
-  padding: 40px !important;
+  padding: 20px !important; /* Reduced for mobile */
   border-radius: 10px !important;
   text-align: center !important;
   border: 3px solid #9b2d2d !important;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.8) !important;
+  max-width: 90vw !important;
+  width: 90vw !important;
 }
 
 #stats-modal {
@@ -765,9 +851,11 @@ h3 {
 
 #stats-modal .modal-content {
   background: #2b2b2b !important;
-  padding: 40px !important;
+  padding: 20px !important; /* Reduced for mobile */
   border-radius: 10px !important;
   text-align: center !important;
   border: 3px solid #9b2d2d !important;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.8) !important;
+  max-width: 90vw !important;
+  width: 90vw !important;
 }
