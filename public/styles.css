@@ -362,7 +362,7 @@ h3 {
   margin: var(--space-sm) 0;
   min-height: 65px;
   flex-wrap: nowrap;
-  overflow: hidden; /* Prevent card overflow */
+  overflow: visible;
 }
 
 .card {
@@ -379,7 +379,7 @@ h3 {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   user-select: none;
   flex-shrink: 0;
-  margin-left: -4px; /* Reduced overlap to prevent overflow */
+  margin-left: -2px;
 }
 
 .card:first-child {
@@ -388,11 +388,11 @@ h3 {
 
 /* Slightly fanned cards for hand effect */
 .player-cards .card:nth-child(odd) {
-  transform: rotate(-2deg);
+  transform: rotate(-1deg);
 }
 
 .player-cards .card:nth-child(even) {
-  transform: rotate(2deg);
+  transform: rotate(1deg);
 }
 
 .card.selectable {
@@ -629,7 +629,7 @@ h3 {
   :root {
     --card-width: 26px;
     --card-height: 36px;
-    --player-width: 120px;
+    --player-width: 150px;
     --font-size-base: 11px;
     --font-size-sm: 9px;
     --font-size-xs: 7px;
@@ -660,6 +660,7 @@ h3 {
 
   .player-cards {
     min-height: 40px;
+    overflow: visible;
   }
 
   .card {
@@ -725,7 +726,7 @@ h3 {
 
 .start-screen .modal-content {
   background: #2b2b2b !important;
-  padding: 20px !important; /* Reduced for mobile */
+  padding: 20px !important;
   border-radius: 10px !important;
   text-align: center !important;
   max-width: 90vw !important;
@@ -811,7 +812,7 @@ h3 {
 
 .game-over-screen .modal-content {
   background: #2b2b2b !important;
-  padding: 20px !important; /* Reduced for mobile */
+  padding: 20px !important;
   border-radius: 10px !important;
   text-align: center !important;
   border: 3px solid #9b2d2d !important;
@@ -836,7 +837,7 @@ h3 {
 
 #stats-modal .modal-content {
   background: #2b2b2b !important;
-  padding: 20px !important; /* Reduced for mobile */
+  padding: 20px !important;
   border-radius: 10px !important;
   text-align: center !important;
   border: 3px solid #9b2d2d !important;
